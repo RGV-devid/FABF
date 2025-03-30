@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/tbao143/Library-ui/refs/heads/main/Redzhubui"))()
         Library.Themes.Darker["Color Hub 1"] = ColorSequence.new({
 				ColorSequenceKeypoint.new(0.00, Color3.fromRGB()),
@@ -30,7 +37,7 @@ function FindEnemiesInRange(v223, v224)
     for v471, v472 in ipairs(v224) do
         if (not v472:GetAttribute("IsBoat") and v472:FindFirstChildOfClass("Humanoid") and (v472.Humanoid.Health > 0)) then
             local v671 = v472:FindFirstChild("Head");
-            if (v671 and ((v225 - v671.Position).Magnitude <= 60)) then
+            if (v671 and ((v225 - v671.Position).Magnitude <= 200)) then
                 if (v472 ~= v21.Character) then
                     table.insert(v223, {
                         v472,
@@ -44,7 +51,7 @@ function FindEnemiesInRange(v223, v224)
     for v473, v474 in ipairs(game.Players:GetPlayers()) do
         if (v474.Character and (v474 ~= v21)) then
             local v672 = v474.Character:FindFirstChild("Head");
-            if (v672 and ((v225 - v672.Position).Magnitude <= 60)) then
+            if (v672 and ((v225 - v672.Position).Magnitude <= 200)) then
                 table.insert(v223, {
                     v474.Character,
                     v672
@@ -58,6 +65,10 @@ end
 function Attack()
     local v228 = {};
     local v229 = game:GetService("Workspace").Enemies:GetChildren();
+    local v230 = FindEnemiesInRange(v228, v229);
+    if not v230 then
+        return;
+    end
     pcall(function()
         local v477 = game:GetService("ReplicatedStorage");
         local v478 = v477:WaitForChild("Modules"):WaitForChild("Net"):WaitForChild("RE/RegisterAttack");
@@ -77,29 +88,26 @@ Main:AddDropdown({
   Callback = function(v)
   _G.AttackMode = v
 end})
+_G.AttackMode = "Fast Attack"
 Main:AddToggle({
   Name = "Attack",
   Default = false,
   Callback = function(v)
 _G.Attack = v
-task.spawn(function()
-while _G.Attack and _G.AttackMode == "Low Attack" do
+while _G.Attack do
+if  _G.AttackMode == "Low Attack" then
 Attack()
 wait(2)
 end
-end)
-task.spawn(function()
-while _G.Attack and _G.AttackMode == "Normal Attack" do
+if  _G.AttackMode == "Normal Attack" then
 Attack()
 wait(1)
 end
-end)
-task.spawn(function()
-while _G.Attack and _G.AttackMode == "Fast Attack" do
+if  _G.AttackMode == "Fast Attack" then
 Attack()
 wait(-9999e9)
 end
-end)
+end
 end})
 Main:AddSection({"Server"})
 Main:AddButton({
