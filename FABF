@@ -1,1 +1,160 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/tbao143/Library-ui/refs/heads/main/Redzhubui"))()
+        Library.Themes.Darker["Color Hub 1"] = ColorSequence.new({
+				ColorSequenceKeypoint.new(0.00, Color3.fromRGB()),
+				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(5,5,5)),
+				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(2,2,2))
+			})
+			Library.Themes.Darker["Color Hub 2"] = Color3.fromRGB(20,20,20)
+			Library.Themes.Darker["Color Stroke"] = Color3.fromRGB(15,15,15)
+			Library.Themes.Darker["Color Theme"] = Color3.fromRGB(0,255,100)
+			Library.Themes.Darker["Color Text"] = Color3.fromRGB(255,255,255)
+			Library.Themes.Darker["Color Dark Text"] = Color3.fromRGB(0,255)
 
+local LibraryESP = loadstring(game:HttpGet("https://github.com/RGV-devid/Scripts/blob/main/ESP?raw=true"))()
+
+local Window = Library:MakeWindow({"YOUHUB | [💢🔥 Fast Attack] Blox Fruits", "v0.0.1", "testando | redz lib v5.lua"})
+
+local Button = Window:AddMinimizeButton({
+Button = { ImageColor3 = Color3.fromRGB(0,255,100), Image = "rbxassetid://95869322194132", BackgroundColor3 = Color3.fromRGB(), BackgroundTransparency = 0 },
+Corner = { CornerRadius = UDim.new(0, 5) },
+})
+Instance.new("UIStroke", game:GetService("CoreGui")["redz Library V5"].Hub).Color = Color3.fromRGB(0,255,100)
+Instance.new("UIStroke", game:GetService("CoreGui")["redz Library V5"].ImageButton).Color = Color3.fromRGB(0,255,100)
+
+local Main = Window:MakeTab({"Main"})
+
+local v21 = game.Players.LocalPlayer;
+function FindEnemiesInRange(v223, v224)
+    local v225 = (v21.Character or v21.CharacterAdded:Wait()):GetPivot().Position;
+    local v226 = nil;
+    for v471, v472 in ipairs(v224) do
+        if (not v472:GetAttribute("IsBoat") and v472:FindFirstChildOfClass("Humanoid") and (v472.Humanoid.Health > 0)) then
+            local v671 = v472:FindFirstChild("Head");
+            if (v671 and ((v225 - v671.Position).Magnitude <= 60)) then
+                if (v472 ~= v21.Character) then
+                    table.insert(v223, {
+                        v472,
+                        v671
+                    });
+                    v226 = v671;
+                end
+            end
+        end
+    end
+    for v473, v474 in ipairs(game.Players:GetPlayers()) do
+        if (v474.Character and (v474 ~= v21)) then
+            local v672 = v474.Character:FindFirstChild("Head");
+            if (v672 and ((v225 - v672.Position).Magnitude <= 60)) then
+                table.insert(v223, {
+                    v474.Character,
+                    v672
+                });
+                v226 = v672;
+            end
+        end
+    end
+    return v226;
+end
+function Attack()
+    local v228 = {};
+    local v229 = game:GetService("Workspace").Enemies:GetChildren();
+    pcall(function()
+        local v477 = game:GetService("ReplicatedStorage");
+        local v478 = v477:WaitForChild("Modules"):WaitForChild("Net"):WaitForChild("RE/RegisterAttack");
+        local v479 = v477:WaitForChild("Modules"):WaitForChild("Net"):WaitForChild("RE/RegisterHit");
+        if (# v228 > 0) then
+            v478:FireServer(1e-9);
+            v479:FireServer(v230, v228);
+        else
+            task.wait(1e-9);
+        end
+    end);
+end
+Main:AddDropdown({
+  Name = "Attack Mode",
+  Options = {"Low Attack", "Normal Attack", "Fast Attack"},
+  Default = "Fast Attack",
+  Callback = function(v)
+  _G.AttackMode = v
+end})
+Main:AddToggle({
+  Name = "Attack",
+  Default = false,
+  Callback = function(v)
+_G.Attack = v
+task.spawn(function()
+while _G.Attack and _G.AttackMode == "Low Attack" do
+Attack()
+wait(2)
+end
+end)
+task.spawn(function()
+while _G.Attack and _G.AttackMode == "Normal Attack" do
+Attack()
+wait(1)
+end
+end)
+task.spawn(function()
+while _G.Attack and _G.AttackMode == "Fast Attack" do
+Attack()
+wait(-9999e9)
+end
+end)
+end})
+Main:AddSection({"Server"})
+Main:AddButton({
+        Name = "Rejoin Server",
+        Callback = function()
+local ts = game:GetService("TeleportService")
+local p = game:GetService("Players").LocalPlayer
+ts:Teleport(game.PlaceId, p)
+end})
+Main:AddButton({
+        Name = "Small Server",
+        Callback = function()
+local Http = game:GetService("HttpService")
+local TPS = game:GetService("TeleportService")
+local Api = "https://games.roblox.com/v1/games/"
+
+local _place = game.PlaceId
+local _servers = Api.._place.."/servers/Public?sortOrder=Asc&limit=99.5"
+function ListServers(cursor)
+   local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
+   return Http:JSONDecode(Raw)
+end
+
+local Server, Next; repeat
+   local Servers = ListServers(Next)
+   Server = Servers.data[1]
+   Next = Servers.nextPageCursor
+until Server
+
+TPS:TeleportToPlaceInstance(_place,Server.id,game.Players.LocalPlayer)
+end})
+Main:AddButton({
+        Name = "Hop Server",
+        Callback = function()
+local Player = game.Players.LocalPlayer    
+local Http = game:GetService("HttpService")
+local TPS = game:GetService("TeleportService")
+local Api = "https://games.roblox.com/v1/games/"
+
+local _place,_id = game.PlaceId, game.JobId
+-- Asc for lowest player count, Desc for highest player count
+local _servers = Api.._place.."/servers/Public?sortOrder=Asc&limit=10"
+function ListServers(cursor)
+   local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
+   return Http:JSONDecode(Raw)
+end
+
+time_to_wait = 120 --seconds
+
+-- choose a random server and join every 2 minutes
+while wait(time_to_wait) do
+   --freeze player before teleporting to prevent synapse crash?
+   Player.Character.HumanoidRootPart.Anchored = true
+   local Servers = ListServers()
+   local Server = Servers.data[math.random(1,#Servers.data)]
+   TPS:TeleportToPlaceInstance(_place, Server.id, Player)
+end
+end})
